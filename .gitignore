@@ -1,0 +1,10 @@
+# Go build artifacts
+/race_pipeline
+*.exe
+*.test
+*.out
+
+# race detector report the student generates locally (not part of starter)
+race_report_before.txt
+
+ANSWER_KEY*
