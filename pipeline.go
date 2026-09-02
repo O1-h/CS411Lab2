@@ -9,13 +9,12 @@ package pipeline
 
 import "sync"
 
-// ADDED FOR TEST FORM OWEN
 // Transaction is a single account credit/debit to apply.
 type Transaction struct {
 	AccountID string
 	Amount    int
 }
-x = 24;
+
 // Pipeline holds the shared state every worker goroutine touches.
 type Pipeline struct {
 	// TODO (Requirement 2): add a sync.Mutex (or sync.RWMutex) here to
