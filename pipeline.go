@@ -15,6 +15,12 @@ type Transaction struct {
 	Amount    int
 }
 
+func testinggitstuff() int {
+	x := 1
+	x += 1
+	return x
+}
+
 // Pipeline holds the shared state every worker goroutine touches.
 type Pipeline struct {
 	// TODO (Requirement 2): add a sync.Mutex (or sync.RWMutex) here to
