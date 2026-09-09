@@ -49,7 +49,7 @@ func (p *Pipeline) applyTransaction(tx Transaction) {
 	p.accountBalances[tx.AccountID] += tx.Amount
 	p.newmut.Unlock()
 	// BUG 2: unsynchronized read-modify-write on a shared int.
-	p.totalProcessed.Add(1)
+	p.totalProcessed.Add(1) //chose atomic since its a single counter
 
 }
 
