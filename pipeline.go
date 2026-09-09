@@ -7,7 +7,10 @@
 // -- pipeline_test.go calls them directly.
 package pipeline
 
-import "sync"
+import (
+	"sync"
+	"sync/atomic"
+)
 
 // Transaction is a single account credit/debit to apply.
 type Transaction struct {
@@ -20,12 +23,13 @@ type Pipeline struct {
 	// TODO (Requirement 2): add a sync.Mutex (or sync.RWMutex) here to
 	// protect accountBalances. Lock only around the critical section --
 	// do not hold it across the whole worker loop body.
+	newmut          sync.Mutex
 	accountBalances map[string]int
 
 	// TODO (Requirement 3): protect this with either the same mutex
 	// above, a separate mutex, or sync/atomic (atomic.Int64). Document
 	// your choice with a comment explaining why.
-	totalProcessed int
+	totalProcessed atomic.Int64
 }
 
 // NewPipeline returns a Pipeline ready to process transactions.
@@ -41,10 +45,12 @@ func (p *Pipeline) applyTransaction(tx Transaction) {
 	// BUG 1: unsynchronized read-modify-write on a shared map.
 	// Concurrent map writes in Go don't just "lose an update" the way
 	// a plain int counter does -- see Part A, Question 3.
+	p.newmut.Lock()
 	p.accountBalances[tx.AccountID] += tx.Amount
-
+	p.newmut.Unlock()
 	// BUG 2: unsynchronized read-modify-write on a shared int.
-	p.totalProcessed++
+	p.totalProcessed.Add(1)
+
 }
 
 // Run spawns numWorkers goroutines that pull Transactions off `txs`
@@ -65,5 +71,5 @@ func (p *Pipeline) Run(txs <-chan Transaction, numWorkers int) (map[string]int, 
 	}
 
 	wg.Wait()
-	return p.accountBalances, p.totalProcessed
+	return p.accountBalances, int(p.totalProcessed.Load())
 }
